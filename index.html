@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EF234301 · Web Storage, Accessibility, Media & Service Worker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Work+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3fa;--fg:#12203a;--mut:#51607a;--card:#fff;--line:#cfd9e8;--ac:#1d4ed8;--acfg:#fff;--gold:#f5b800;--ok:#0f7a3a;--bad:#b3261e;--code:#101a2e;--codefg:#e4ecfa;
+padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1220;--fg:#e6edf9;--mut:#9fb0cc;--card:#122038;--line:#243452;--ac:#8fb0ff;--acfg:#0a1220;--ok:#4ade80;--bad:#ff8a80;--code:#060c18}}
+:root[data-theme="dark"]{--bg:#0a1220;--fg:#e6edf9;--mut:#9fb0cc;--card:#122038;--line:#243452;--ac:#8fb0ff;--acfg:#0a1220;--ok:#4ade80;--bad:#ff8a80;--code:#060c18}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:1rem/1.6 "Work Sans",system-ui,sans-serif;display:flex;flex-direction:column}
+.skip{position:absolute;left:-999px}.skip:focus{left:.5rem;top:.5rem;background:var(--gold);color:#000;padding:.4rem .8rem;z-index:9}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{display:flex;align-items:center;gap:1rem;padding:.7rem clamp(1rem,4vw,3rem);border-bottom:1px solid var(--line)}
+header b{font:800 1.05rem Archivo,sans-serif;letter-spacing:.01em}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+button{font:inherit;font-weight:500;padding:.5rem .95rem;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.p{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+main{flex:1;overflow:auto;padding:1.5rem clamp(1rem,4vw,3rem)}
+.slide{display:none;max-width:70rem;margin:0 auto}.slide.on{display:block}
+h1,h2{font-family:Archivo,sans-serif;font-weight:800;line-height:1.08;margin:0 0 .6rem}
+h1{font-size:clamp(2rem,6vw,3.6rem)}h2{font-size:clamp(1.6rem,4vw,2.4rem)}h3{margin:.2rem 0 .5rem;font-size:1.05rem}
+.lead{color:var(--mut);max-width:60ch;margin:0 0 1.2rem;font-size:1.08rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(20rem,1fr));gap:1.2rem;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.1rem}
+pre{margin:.6rem 0 0;background:var(--code);color:var(--codefg);padding:.85rem;border-radius:10px;overflow-x:auto;font:.82rem/1.55 "Fira Code",ui-monospace,monospace}
+code{font-family:"Fira Code",ui-monospace,monospace;font-size:.9em}
+table{width:100%;border-collapse:collapse;font-size:.93rem}th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--line);vertical-align:top}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}
+input,select{font:inherit;padding:.45rem .6rem;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);min-width:0}
+label{display:block;font-weight:600;font-size:.9rem}
+.out{margin-top:.6rem;padding:.6rem .8rem;border-left:4px solid var(--gold);background:var(--bg);border-radius:6px;min-height:2.6rem;white-space:pre-wrap;font:.85rem/1.5 "Fira Code",monospace}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}.chip{padding:.4rem .8rem;border:2px solid var(--line);border-radius:99px;font-weight:600}.chip.on{background:var(--gold);color:#000;border-color:var(--gold)}
+.hl{color:var(--bad);font-weight:700;text-decoration:underline}.bold{font-weight:600}
+details{border:1px solid var(--line);border-radius:10px;padding:.6rem .9rem;margin:.5rem 0;background:var(--card)}summary{cursor:pointer;font-weight:600}
+.sw{display:flex;gap:.5rem;align-items:center}.sw i{width:2.4rem;height:2.4rem;border-radius:8px;border:1px solid var(--line)}
+.quiz{margin-top:1.4rem;border:2px solid var(--gold)}.quiz button{display:block;width:100%;text-align:left;margin:.4rem 0}
+.quiz .ok{border-color:var(--ok);color:var(--ok)}.quiz .no{border-color:var(--bad);color:var(--bad)}
+video,canvas{width:100%;max-width:26rem;border-radius:10px;background:#000;display:block;margin-top:.6rem}
+footer{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(1rem,4vw,3rem);border-top:1px solid var(--line)}
+.note{color:var(--mut);font-size:.88rem}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to lesson</a>
+<header>
+<b>EF234301 · Week 4</b>
+<div class="bar" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" aria-valuemax="100"><i id="pg"></i></div>
+<button id="theme" aria-label="Toggle light or dark theme">Theme</button>
+</header>
+<main id="main" tabindex="-1">
+
+<section class="slide" id="title">
+<h1>Web Storage, Accessibility, Media &amp; Service Worker</h1>
+<p class="lead">Departemen Teknik Informatika ITS · Moch. Nafkhan Alzamzami, S.T., M.T. and Muhammad ’Arif Faizin, S.Kom., M.Kom.</p>
+<div class="grid">
+<div class="card"><h3>How this lesson works</h3><p>Each topic has a live demo you can change. Three checkpoints must be answered correctly before you can continue.</p></div>
+<div class="card"><h3>Main topics</h3><p>JavaScript review → Web Storage → Accessibility → Media → Service Worker &amp; Notification, then the E03 assignment.</p></div>
+</div>
+</section>
+
+<section class="slide" id="review">
+<h2>JavaScript review: DOM and events</h2>
+<p class="lead">The DOM is a tree of objects. JavaScript selects an element, changes it, and listens for events.</p>
+<div class="grid">
+<div class="card"><h3>Try it</h3>
+<p id="box" class="bold">I’m an element selected with getElementById.</p>
+<div class="row"><button data-c="add">classList.add</button><button data-c="remove">classList.remove</button><button data-c="toggle">classList.toggle</button></div>
+<label for="kb">Type here to see the event object</label><input id="kb" autocomplete="off">
+<div class="out" id="kbout" aria-live="polite">event.key will appear here</div></div>
+<div class="card"><h3>The code behind it</h3>
+<pre>const box = document.getElementById("box");
+box.classList.toggle("hl");
+
+input.addEventListener("keyup", (event) =&gt; {
+  console.log("Key pressed:", event.key);
+});</pre></div>
+</div>
+</section>
+
+<section class="slide" id="storage">
+<h2>Web Storage</h2>
+<p class="lead">Browsers can keep data on the user’s device. It is stored per domain, only that domain can read it, and the limit is about 10 MB.</p>
+<div class="grid">
+<div class="card"><h3>Storage sandbox</h3>
+<div class="row"><select id="store" aria-label="Storage type"><option value="local">localStorage</option><option value="session">sessionStorage</option><option value="cookie">cookie</option></select>
+<input id="k" placeholder="key" aria-label="Key" size="9"><input id="v" placeholder="value" aria-label="Value" size="9"></div>
+<div class="row"><button class="p" id="sset">setItem</button><button id="sget">getItem</button><button id="srm">removeItem</button></div>
+<div class="out" id="sout" aria-live="polite">Pick a store, then save something. The list below shows what is stored.</div></div>
+<div class="card"><h3>Which one should I use?</h3>
+<table><tr><th>Type</th><th>Lifetime</th><th>Notes</th></tr>
+<tr><td>sessionStorage</td><td>Until the tab closes</td><td>Survives reload</td></tr>
+<tr><td>localStorage</td><td>No expiry</td><td>Good for theme and preferences</td></tr>
+<tr><td>Cookie</td><td>Expires / Max-Age</td><td>Sent to the server with every request</td></tr>
+<tr><td>IndexedDB</td><td>Persistent</td><td>Client-side NoSQL for objects and files</td></tr></table>
+<pre>localStorage.setItem("theme", "dark");
+localStorage.getItem("theme");
+document.cookie = "user=John; max-age=3600; path=/";</pre></div>
+</div>
+</section>
+
+<section class="slide" id="access">
+<h2>Accessibility</h2>
+<p class="lead">Accessibility is about inclusivity: the site works for visual, hearing, mobility, cognitive, seizure, and speech needs. Open each principle.</p>
+<div class="grid">
+<div>
+<details open><summary>Perceivable</summary>Alternative text, enough color contrast, less decorative content.</details>
+<details><summary>Operable</summary>Everything works with a keyboard; media can be controlled; touch screens work.</details>
+<details><summary>Understandable</summary>Simple wording, no useless elements, always notify the user.</details>
+<details><summary>Robust</summary>Works with assistive tools and across browsers.</details>
+</div>
+<div class="card"><h3>Name things for screen readers</h3>
+<pre>&lt;!-- Bad --&gt;
+&lt;button&gt;Kirim&lt;/button&gt;
+&lt;button&gt;&lt;i class="fa fa-heart"&gt;&lt;/i&gt;&lt;/button&gt;
+
+&lt;!-- Good --&gt;
+&lt;button&gt;Bayar sekarang&lt;/button&gt;
+&lt;button aria-label="Save as favorite"&gt;
+  &lt;i class="fa fa-heart"&gt;&lt;/i&gt;
+&lt;/button&gt;
+&lt;img src="a.png" alt="Explanation"&gt;
+&lt;label for="tos"&gt;Do you agree?&lt;/label&gt;</pre>
+<p class="note">Use alt="" for purely decorative images. Use div with tabindex="0" only when a real button can’t do the job.</p></div>
+</div>
+</section>
+
+<section class="slide" id="contrast">
+<h2>Color contrast checker</h2>
+<p class="lead">WCAG compares text and background brightness. Change the colors and read the result.</p>
+<div class="grid">
+<div class="card">
+<div class="row"><div><label for="fg">Text color</label><input type="color" id="fg" value="#2fa08e"></div><div><label for="bg">Background</label><input type="color" id="bg" value="#ffffff"></div></div>
+<p id="sample" style="padding:1rem;border-radius:8px;font-size:1.2rem;font-weight:600;margin:.5rem 0">The five boxing wizards jump quickly.</p>
+<div class="out" id="cres" aria-live="polite"></div></div>
+<div class="card"><h3>Thresholds</h3>
+<table><tr><th>Level</th><th>Normal text</th><th>Large text</th></tr><tr><td>AA</td><td>4.5 : 1</td><td>3 : 1</td></tr><tr><td>AAA</td><td>7 : 1</td><td>4.5 : 1</td></tr></table>
+<p class="note">Try #2fa08e on white (the myITS example), then #0000ff on white.</p></div>
+</div>
+</section>
+
+<section class="slide" id="media">
+<h2>Media Capture and Stream API</h2>
+<p class="lead">The browser can reach the camera and microphone. The user is asked first, then you receive a MediaStream.</p>
+<div class="grid">
+<div class="card"><h3>Camera demo</h3>
+<div class="row"><button class="p" id="cam">Start video</button><button id="snap">Take photo</button></div>
+<video id="vid" playsinline muted aria-label="Camera preview"></video>
+<canvas id="cv" hidden aria-label="Captured photo"></canvas>
+<div class="out" id="mst" aria-live="polite">Press Start video and allow camera access.</div></div>
+<div class="card"><h3>The code</h3>
+<pre>const stream = await navigator.mediaDevices
+  .getUserMedia({ video: true });
+video.srcObject = stream;
+video.play();
+
+// take a picture with Canvas
+ctx.drawImage(video, 0, 0, width, height);
+const data = canvas.toDataURL("image/png");</pre>
+<p class="note">If the camera is blocked here, open the page in its own tab or run the code locally.</p></div>
+</div>
+</section>
+
+<section class="slide" id="worker">
+<h2>Service Worker and Notification</h2>
+<p class="lead">A service worker runs JavaScript on a background thread, as a proxy between your page and the web server. Step through its life cycle.</p>
+<div class="grid">
+<div class="card"><h3>Life cycle</h3>
+<div class="chips" id="chips"></div>
+<div class="out" id="swd" aria-live="polite"></div>
+<div class="row"><button class="p" id="swn">Next event</button></div>
+<h3>Notification permission</h3>
+<div class="row"><button id="perm">Request permission</button><button id="notify">Show notification</button></div>
+<div class="out" id="nst" aria-live="polite">The user must agree first.</div></div>
+<div class="card"><h3>The code</h3>
+<pre>await navigator.serviceWorker.register("./sw.js");
+
+// sw.js
+self.addEventListener("install", () =&gt; {});
+self.addEventListener("activate", () =&gt; {});
+self.addEventListener("push", (event) =&gt; {
+  event.waitUntil(
+    self.registration.showNotification("New todo!", {
+      body: "Finish it before the deadline."
+    })
+  );
+});</pre></div>
+</div>
+</section>
+
+<section class="slide" id="assign">
+<h2>Assignment E03: The Lost Cavern</h2>
+<p class="lead">Extend your Todo app. Tick each requirement as you finish it.</p>
+<div class="grid">
+<div class="card" id="todo">
+<label><input type="checkbox"> IndexedDB for todo data, localStorage for light/dark mode</label>
+<label><input type="checkbox"> Media Capture API with an image field on the todo form</label>
+<label><input type="checkbox"> Service Worker with a notification-time field on the form</label>
+<label><input type="checkbox"> Accessibility on every component</label>
+<label><input type="checkbox"> All accessibility best practices</label>
+<div class="out" id="tcount" aria-live="polite">0 of 5 done</div></div>
+<div class="card"><h3>Submission</h3><p>Create a branch named E03 in your existing repository in the GitHub organization IF-Pemrograman-Web-A, and update the README.md in that branch.</p></div>
+</div>
+</section>
+
+</main>
+<footer>
+<button id="prev">Previous</button>
+<span class="note" id="cnt" aria-live="polite"></span>
+<button class="p" id="next">Next</button>
+</footer>
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const slides=$$(".slide"),ids=slides.map(s=>s.id),passed=new Set();let cur=0;
+const quiz={
+storage:{q:"Which storage keeps data after the browser is closed, with no expiry date?",o:["sessionStorage","localStorage","A cookie with no Max-Age","IndexedDB only"],a:1,e:"localStorage stays until it is cleared. sessionStorage ends with the tab."},
+contrast:{q:"What is the AA contrast ratio for normal-size text?",o:["2 : 1","3 : 1","4.5 : 1","7 : 1"],a:2,e:"AA needs 4.5 : 1 for normal text and 3 : 1 for large text."},
+media:{q:"Which call asks permission and returns a MediaStream?",o:["navigator.mediaDevices.getUserMedia()","canvas.toDataURL()","video.play()","Notification.requestPermission()"],a:0,e:"getUserMedia prompts the user, then resolves with the stream."},
+worker:{q:"What is the service worker state right after it installs successfully?",o:["idle","terminated","activated","fetch"],a:2,e:"Installing leads to activated. After that it becomes idle and waits for events."}};
+for(const id in quiz){const d=quiz[id],c=document.createElement("div");c.className="card quiz";
+c.innerHTML="<h3>Checkpoint</h3><p>"+d.q+"</p>";
+d.o.forEach((t,i)=>{const b=document.createElement("button");b.textContent=t;b.onclick=()=>{
+if(i===d.a){b.classList.add("ok");passed.add(id);m.textContent="Correct. "+d.e;go(cur)}else{b.classList.add("no");m.textContent="Not quite. Read the lesson and try again."}};c.append(b)});
+const m=document.createElement("p");m.setAttribute("aria-live","polite");m.className="note";c.append(m);$("#"+id).append(c)}
+function go(i){const lock=ids.findIndex(id=>quiz[id]&&!passed.has(id)),max=lock<0?ids.length-1:lock;
+i=Math.max(0,Math.min(i,max));cur=i;slides.forEach((s,j)=>s.classList.toggle("on",j===i));
+const pct=Math.round(i/(ids.length-1)*100);$("#pg").style.width=pct+"%";$(".bar").setAttribute("aria-valuenow",pct);
+$("#cnt").textContent=(i+1)+" / "+ids.length+(quiz[ids[i]]&&!passed.has(ids[i])?" · answer the checkpoint to continue":"");
+$("#prev").disabled=i===0;$("#next").disabled=i>=max;
+if(location.hash.slice(1)!==ids[i])location.hash=ids[i];$("#main").scrollTop=0;
+const h=$("h1,h2",slides[i]);h.tabIndex=-1;h.focus({preventScroll:true})}
+$("#prev").onclick=()=>go(cur-1);$("#next").onclick=()=>go(cur+1);
+addEventListener("hashchange",()=>{const i=ids.indexOf(location.hash.slice(1));if(i>=0&&i!==cur)go(i)});
+function theme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem("theme",t)}catch(e){}}
+try{const t=localStorage.getItem("theme");if(t)theme(t)}catch(e){}
+$("#theme").onclick=()=>{const d=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");theme(d==="dark"?"light":"dark")};
+/* DOM review */
+$$("[data-c]").forEach(b=>b.onclick=()=>$("#box").classList[b.dataset.c](b.dataset.c==="remove"?"bold":"hl"));
+$("#kb").addEventListener("keyup",e=>$("#kbout").textContent="event.key = "+JSON.stringify(e.key));
+/* storage */
+const mem={local:{},session:{},cookie:{}},S=()=>$("#store").value,K=()=>$("#k").value.trim();
+function rd(s){try{if(s==="local")return Object.entries(localStorage);if(s==="session")return Object.entries(sessionStorage);
+return document.cookie.split("; ").filter(Boolean).map(p=>p.split("=").map(decodeURIComponent))}catch(e){return Object.entries(mem[s])}}
+function show(msg){const r=rd(S());$("#sout").textContent=msg+"\n\n"+S()+" now holds "+r.length+" item(s):\n"+r.map(x=>"  "+x[0]+" = "+x[1]).join("\n")}
+$("#sset").onclick=()=>{if(!K())return show("Enter a key first.");const s=S(),v=$("#v").value;
+try{if(s==="local")localStorage.setItem(K(),v);else if(s==="session")sessionStorage.setItem(K(),v);else document.cookie=encodeURIComponent(K())+"="+encodeURIComponent(v)+"; max-age=3600; path=/"}catch(e){mem[s][K()]=v}show("Saved “"+K()+"”.")};
+$("#sget").onclick=()=>{const f=rd(S()).find(x=>x[0]===K());show(f?"getItem → "+f[1]:"getItem → null (nothing stored under that key)")};
+$("#srm").onclick=()=>{const s=S();try{if(s==="local")localStorage.removeItem(K());else if(s==="session")sessionStorage.removeItem(K());else document.cookie=encodeURIComponent(K())+"=; max-age=0; path=/"}catch(e){delete mem[s][K()]}show("Removed “"+K()+"”.")};
+$("#store").onchange=()=>show("Switched store.");
+/* contrast */
+const lum=h=>{const c=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+function ctr(){const f=$("#fg").value,b=$("#bg").value,a=lum(f),c=lum(b),r=(Math.max(a,c)+.05)/(Math.min(a,c)+.05),p=x=>r>=x?"pass":"fail";
+$("#sample").style.cssText+=";color:"+f+";background:"+b;
+$("#cres").textContent="Contrast ratio "+r.toFixed(2)+" : 1\nNormal text  AA "+p(4.5)+" · AAA "+p(7)+"\nLarge text   AA "+p(3)+" · AAA "+p(4.5)}
+$("#fg").oninput=$("#bg").oninput=ctr;ctr();
+/* media */
+const vid=$("#vid"),cv=$("#cv"),mst=t=>$("#mst").textContent=t;
+$("#cam").onclick=async()=>{try{vid.srcObject=await navigator.mediaDevices.getUserMedia({video:true});await vid.play();mst("Camera is live.")}catch(e){mst("Camera unavailable here ("+e.name+"). Open the page in its own tab or run it locally.")}};
+$("#snap").onclick=()=>{if(!vid.videoWidth)return mst("Start the camera first.");cv.width=vid.videoWidth;cv.height=vid.videoHeight;cv.getContext("2d").drawImage(vid,0,0);cv.hidden=false;mst("Photo captured: "+cv.toDataURL("image/png").length+" characters of image data.")};
+/* service worker */
+const st=["Installing","Activated","Idle","Fetch / Message","Terminated"],seq=[0,1,2,3,2,4],
+ds=["Installing: the worker is being set up. If this fails the state becomes Error.","Activated: installed successfully, ready to take control.","Idle: waiting for an event.","Fetch / Message: a page request or postMessage woke the worker.","Terminated: the browser stopped the idle worker. It starts again when needed."];
+let si=0;$("#chips").innerHTML=st.map(s=>"<span class='chip'>"+s+"</span>").join("");
+function sw(){$$(".chip").forEach((c,i)=>c.classList.toggle("on",i===seq[si]));$("#swd").textContent=ds[seq[si]]}
+$("#swn").onclick=()=>{si=(si+1)%seq.length;sw()};sw();
+const nst=t=>$("#nst").textContent=t;
+$("#perm").onclick=async()=>{if(!("Notification" in window))return nst("This browser has no Notification API.");try{nst("Permission: "+await Notification.requestPermission())}catch(e){nst("Blocked here ("+e.name+").")}};
+$("#notify").onclick=()=>{try{if(Notification.permission!=="granted")return nst("Grant permission first.");new Notification("New todo added!",{body:"Finish it before the deadline."});nst("Notification sent.")}catch(e){nst("Can’t show it here ("+e.name+").")}};
+/* assignment */
+$$("#todo input").forEach(i=>i.onchange=()=>$("#tcount").textContent=$$("#todo input:checked").length+" of 5 done");
+const start=ids.indexOf(location.hash.slice(1));go(start>=0?start:0);
+</script>
+</body>
+</html>
